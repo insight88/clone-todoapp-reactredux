@@ -1,48 +1,76 @@
 import { createStore } from 'redux';
+const form = document.querySelector('form');
+const input = document.querySelector('input');
+const ul = document.querySelector('ul');
 
-const add = document.getElementById('add');
-const minus = document.getElementById('minus');
-const number = document.querySelector('span');
+const ADD_TODO = 'ADD_TODO';
+const DELETE_TODO = 'DELETE_TODO';
 
-number.innerText = 0;
+const addToDo = (text) => {
+  return {
+    type: ADD_TODO,
+    text,
+  };
+};
 
-const ADD = 'ADD';
-const MINUS = 'MINUS';
+const deleteToDo = (id) => {
+  return {
+    type: DELETE_TODO,
+    id,
+  };
+};
 
-const countModifier = (count = 0, action) => {
+const reducer = (state = [], action) => {
   switch (action.type) {
-    case ADD:
-      return count + 1;
-    case MINUS:
-      return count - 1;
+    case ADD_TODO:
+      return [{ text: action.text, id: Date.now() }, ...state];
+    case DELETE_TODO:
+      return state.filter((todo) => todo.id !== action.id);
+    // * filter는 array에서 조건을 만족하는 것들로만 구성된 새로운 array를 return
     default:
-      return count;
+      return state;
   }
 };
-// * const modifier = (state, action) 2개의 인자를 받음
-// * only modifier 한 개의 함수만 data를 modify할 수 있음
-// * modifier가 리턴하는 값은 application의 data이므로 getState()로 얻을 수 있음
+// * redux에서 data를 수정할 수 있는 것은 단 하나의 reducer or modifier 함수밖에 없다
+// * state를 절대 직접 mutate하지 말 것 (ex.push, splice)
+// * 바뀐 결과는 reducer에서 새 객체를 만들고 return하여야 한다
 
-const countStore = createStore(countModifier);
-// * createStore 함수는 data modifier 함수를 인자로 받아야함
-// * countStore 함수는 dispatch, getState, replaceReducer, subscribe 메소드를 가짐
+const store = createStore(reducer);
 
-const onChange = () => {
-  number.innerText = countStore.getState();
+store.subscribe(() => console.log(''));
+
+const dispatchAddToDo = (text) => {
+  store.dispatch(addToDo(text));
 };
 
-countStore.subscribe(onChange);
-// * subscribe는 store안에 있는 변화들을 listening 주시한다
-
-const handleAdd = () => {
-  countStore.dispatch({ type: ADD });
+const dispatchDeleteToDo = (e) => {
+  const id = parseInt(e.target.parentNode.id);
+  // ! HTML로부터 객체로 받아오는 모든 정보는 string
+  store.dispatch(deleteToDo(id));
 };
 
-const handleMinus = () => {
-  countStore.dispatch({ type: MINUS });
+const paintToDos = () => {
+  const toDos = store.getState();
+  ul.innerHTML = '';
+  toDos.forEach((toDo) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.innerText = '💥';
+    btn.addEventListener('click', dispatchDeleteToDo);
+    li.id = toDo.id;
+    li.innerText = toDo.text;
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
 };
-// * modifier 함수의 인자로 제공되는 action을 정의하는 함수 dispatch
-// * dispatch 메소드는 인자로 객체를 받아야 함
-// * aciton이 인자로 갖는 객체의 property는 type이라는 이름이어야만 함
-add.addEventListener('click', handleAdd);
-minus.addEventListener('click', handleMinus);
+
+store.subscribe(paintToDos);
+
+const onSubmit = (e) => {
+  e.preventDefault();
+  const toDo = input.value;
+  input.value = '';
+  dispatchAddToDo(toDo);
+};
+
+form.addEventListener('submit', onSubmit);
