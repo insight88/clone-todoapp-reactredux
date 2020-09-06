@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { actionCreators } from '../store';
+import { add } from '../store';
 import ToDo from '../components/ToDo';
 
 function Home({ toDos, addToDo }) {
@@ -39,7 +39,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addToDo: (text) => dispatch(actionCreators.addToDo(text)),
+    addToDo: (text) => dispatch(add(text)),
   };
 }
 // * store의 reducer가 state를 변화시키는 action을 감지하여 dispatch로 new State를 prop에 전달한다
