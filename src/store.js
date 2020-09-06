@@ -1,5 +1,4 @@
-import { createStore } from 'redux';
-import { createAction, createReducer } from '@reduxjs/toolkit';
+import { createAction, createReducer, configureStore } from '@reduxjs/toolkit';
 
 const addToDo = createAction('ADD');
 const deleteToDo = createAction('DELETE');
@@ -20,7 +19,7 @@ const reducer = createReducer([], {
 // * createReducer는 push와 같이 state를 mutate하더라도 new state를 return해준다.
 // * filter와 같이 new state를 return 하던지, push와 같이 state를 mutate하던지 상관없다.
 
-const store = createStore(reducer);
+const store = configureStore({ reducer });
 
 export const actionCreators = {
   addToDo,
