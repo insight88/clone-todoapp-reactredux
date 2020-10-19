@@ -1,4 +1,4 @@
-# Weather App
+# Redux for Beginners
 
 [초보자를 위한 리덕스 101](https://nomadcoders.co/redux-for-beginners)
 * Redux의 개념을 배우고 간단한 To Do List를 만들면서 실습해보았습니다.
